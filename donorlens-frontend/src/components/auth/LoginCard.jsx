@@ -1,23 +1,37 @@
 // Professional login card with full authentication integration
 
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../state/useAuth";
 import { login as loginApi } from "../../features/auth/api";
 import { setAccessToken as setAxiosAccessToken } from "../../lib/axios";
 
+// Friendly messages for ?error= codes the Google OIDC callback can redirect
+// back with (see donorlens-backend/src/routes/auth/googleAuth.route.js)
+const GOOGLE_ERROR_MESSAGES = {
+  google_cancelled: "Google sign-in was cancelled.",
+  invalid_state: "That Google sign-in link expired or was already used. Please try again.",
+  invalid_nonce: "That Google sign-in link expired or was already used. Please try again.",
+  email_not_verified: "Your Google account's email isn't verified yet. Please verify it with Google first.",
+  account_not_allowed: "Google sign-in isn't available for NGO or admin accounts. Please use your password.",
+  google_failed: "Google sign-in didn't work. Please try again or use your password.",
+};
+
 const LoginCard = () => {
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  
+
   // UI state
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState(
+    () => GOOGLE_ERROR_MESSAGES[searchParams.get("error")] || "",
+  );
+
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -242,6 +256,26 @@ const LoginCard = () => {
         <span className="text-sm text-slate-500 font-medium">or</span>
         <span className="flex-1 h-px bg-slate-200"></span>
       </div>
+
+      {/* Continue with Google (OIDC, Authorization Code + PKCE) */}
+      <button
+        type="button"
+        disabled={isLoading}
+        onClick={() => {
+          // Plain navigation, not an axios call — the backend needs to set
+          // a cookie and redirect the browser to Google.
+          window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+        }}
+        className="w-full px-6 py-3.5 bg-white text-slate-700 border border-slate-300 rounded-lg font-semibold text-base cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19.6 10.23c0-.68-.06-1.33-.17-1.96H10v3.71h5.38a4.6 4.6 0 01-2 3.02v2.5h3.23c1.9-1.75 2.99-4.32 2.99-7.27z" fill="#4285F4"/>
+          <path d="M10 20c2.7 0 4.96-.89 6.62-2.42l-3.23-2.5c-.9.6-2.04.96-3.39.96-2.6 0-4.8-1.76-5.59-4.12H1.08v2.59A10 10 0 0010 20z" fill="#34A853"/>
+          <path d="M4.41 11.92A5.99 5.99 0 014.09 10c0-.67.11-1.32.32-1.92V5.49H1.08A10 10 0 000 10c0 1.61.39 3.14 1.08 4.51l3.33-2.59z" fill="#FBBC05"/>
+          <path d="M10 3.96c1.47 0 2.79.5 3.82 1.5l2.87-2.87C14.95.99 12.7 0 10 0 6.09 0 2.72 2.24 1.08 5.49l3.33 2.59C5.2 5.72 7.4 3.96 10 3.96z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
 
       {/* Registration Links */}
       {!isLoading && (
