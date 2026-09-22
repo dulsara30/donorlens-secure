@@ -23,7 +23,9 @@ const userSchema = new mongoose.Schema(
     passwordHash: {
       type: String,
       required: function () {
-        return this.role !== "NGO_ADMIN";
+        // NGO admins set their password later via the approval flow, and
+        // Google-linked accounts authenticate with Google, not a local password.
+        return this.role !== "NGO_ADMIN" && !this.googleId;
       },
       select: false, // IMPORTANT: never return password by default
     },
@@ -33,6 +35,20 @@ const userSchema = new mongoose.Schema(
       enum: ["USER", "NGO_ADMIN", "ADMIN"],
       default: "USER",
       required: true,
+    },
+
+    // Google OIDC sign-in (Authorization Code + PKCE) — see routes/auth/googleAuth.route.js
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows many documents with no googleId (local accounts)
+      index: true,
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
     },
 
     isActive: {
