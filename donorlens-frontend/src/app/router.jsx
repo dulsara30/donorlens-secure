@@ -6,6 +6,7 @@ import { ROLES } from "../lib/constants";
 
 import LoginPage from "../features/auth/pages/LoginPage";
 import LogoutPage from "../features/auth/pages/LogoutPage";
+import GoogleAuthSuccessPage from "../features/auth/pages/GoogleAuthSuccessPage";
 import PasswordSetupPage from "../features/auth/pages/PasswordSetupPage";
 import Unauthorized from "../pages/Unauthorized";
 import NotFound from "../pages/NotFound";
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
   // AUTH ROUTES (Public)
   { path: "/login", element: <LoginPage /> },
   { path: "/logout", element: <LogoutPage /> },
+  { path: "/auth/google/success", element: <GoogleAuthSuccessPage /> },
   { path: "/password-setup", element: <PasswordSetupPage /> },
   { path: "/register", element: <RegisterUserPage /> },
   { path: "/register/user", element: <RegisterUserPage /> },
