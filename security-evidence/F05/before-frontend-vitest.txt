@@ -1,0 +1,178 @@
+[vite:react-swc] We recommend switching to `@vitejs/plugin-react` for improved performance as no swc plugins are used. More information at https://vite.dev/rolldown
+
+ RUN  v4.1.4 C:/Users/Viduni Umalya/AppData/Local/Temp/f05-baseline/donorlens-frontend
+
+stderr | src/__tests__/features/payments/DonatePage.test.jsx > DonatePage > User Interactions & Step Navigation > should display validation errors when submitting Step 1 with amount < 50
+An update to DonatePage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ❯ src/__tests__/features/payments/DonatePage.test.jsx (9 tests | 1 failed) 2944ms
+       × should display validation errors when submitting Step 1 with amount < 50 22ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/__tests__/features/payments/DonatePage.test.jsx > DonatePage > User Interactions & Step Navigation > should display validation errors when submitting Step 1 with amount < 50
+TestingLibraryElementError: Found a label with the text of: /Custom Amount/i, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30 flex flex-col"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-out py-5"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"max-w-7xl mx-auto px-6 transition-all duration-300 ease-out bg-white/95 backdrop-blur-sm shadow-sm rounded-2xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center justify-between py-3"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"flex items-center gap-2.5 no-underline group"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/"[39m
+            [36m>[39m
+              [36m<img[39m
+                [33malt[39m=[32m"DonorLens Logo"[39m
+                [33mclass[39m=[32m"w-auto transition-all duration-300 ease-out h-13"[39m
+                [33msrc[39m=[32m"/src/assets/logo.png"[39m
+              [36m/>[39m
+            [36m</a>[39m
+            [36m<nav[39m
+              [33mclass[39m=[32m"flex gap-8 items-center"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"no-underline font-medium text-sm text-slate-700 hover:text-teal-600 transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-teal-600 after:transition-all after:duration-300 hover:after:w-full"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/"[39m
+              [36m>[39m
+                [0mHome[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"no-underline font-medium text-sm text-slate-700 hover:text-teal-600 transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-teal-600 after:transition-all after:duration-300 hover:after:w-full"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/campaigns"[39m
+              [36m>[39m
+                [0mCampaigns[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"no-underline font-medium text-sm text-slate-700 hover:text-teal-600 transition-colors duration-200 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-teal-600 after:transition-all after:duration-300 hover:after:w-full"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/transparency"[39m
+              [36m>[39m
+                [0mTransparency[0m
+              [36m</a>[39m
+            [36m</nav>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex gap-3 items-center"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"px-5 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 hover:shadow-md transition-all duration-200 no-underline"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/campaigns"[39m
+              [36m>[39m
+                [0mDonate Now[0m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"px-5 py-2 bg-transparent text-teal-600 text-sm font-semibold border border-teal-600 rounded-lg hover:bg-teal-50 transition-all duration-200 no-underline"[39m
+                [33mdata-discover[39m=[32m"true"[39m
+                [33mhref[39m=[32m"/login"[39m
+              [36m>[39m
+                [0mLogin[0m
+              [36m</a>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<main[39m
+        [33mclass[39m=[32m"flex-1 pt-28 pb-20 px-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"max-w-2xl mx-auto"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"inline-flex items-center gap-2 text-sm text-slate-500 hover:text-teal-600 transition-colors mb-8 no-underline group"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/campaigns/test-campaign-123"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-4 h-4 group-hover:-translate-x-0.5 transition-transform"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 12H5M12 5l-7 7 7 7"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mBack to Campaign[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-center mb-10 animate-fade-in"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"inline-flex items-center gap-2 bg-teal-50 text-teal-700 px-4 py-1.5 rounded-full text-xs font-semibold mb-4 border border-teal-100"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"w-3.5 h-3.5"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0mSecure Donation[0m
+            [36m</div>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"text-3xl md:text-4xl font-bold text-slate-900 mb-3"[39m
+            [36m>[39m
+              [0mMake a Difference[0m
+            [36m</h1>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center mb-10 px-2"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex items-center gap-2"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 bg-teal-600 text-white ring-4 ring-teal-100"[39m
+              [36m>[39...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:108:40
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ getByLabelText node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/__tests__/features/payments/DonatePage.test.jsx:92:40
+     90|
+     91|       // Select Custom Amount
+     92|       const customAmountRadio = screen.getByLabelText(/Custom Amount/i…
+       |                                        ^
+     93|       await user.click(customAmountRadio);
+     94|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 59 passed (60)
+   Start at  01:32:47
+   Duration  5.23s (transform 895ms, setup 0ms, import 3.68s, tests 3.89s, environment 9.53s)
+
