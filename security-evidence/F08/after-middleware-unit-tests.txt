@@ -1,0 +1,20 @@
+
+== campaign.routes.js: coverImage, allowedTypes = ALLOWED_FILE_TYPES.images ==
+[PASS] real JPG as coverImage -> ACCEPTED
+File validation error: File 1 (fake.jpg) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg
+[PASS] PDF renamed to .jpg as coverImage (content/declared mismatch) -> REJECTED (File 1 (fake.jpg) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg)
+File validation error: File 1 (cover.pdf) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg
+[PASS] real PDF as coverImage, declared application/pdf (not on images allowlist) -> REJECTED (File 1 (cover.pdf) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg)
+File validation error: File 1 (fake.jpg) could not be verified. Its content does not match a supported file type.
+[PASS] plain text renamed .jpg as coverImage -> REJECTED (File 1 (fake.jpg) could not be verified. Its content does not match a supported file type.)
+
+== executions.routes.js: fieldRules ==
+[PASS] real JPG as evidencePhotos -> ACCEPTED
+File validation error: File 1 (e1.pdf) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg
+[PASS] real PDF as evidencePhotos (photos must be images, PDFs not allowed here) -> REJECTED (File 1 (e1.pdf) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg)
+[PASS] real PDF as receipts (receipts may be a scanned PDF) -> ACCEPTED
+[PASS] real JPG as receipts (a photo of a receipt) -> ACCEPTED
+File validation error: File 2 (e2.jpg) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg
+[PASS] mixed: valid evidencePhotos + a PDF disguised as .jpg smuggled into evidencePhotos -> REJECTED (File 2 (e2.jpg) has an invalid file type (detected: application/pdf). Allowed types: image/jpeg, image/png, image/webp, image/jpg)
+
+9 passed, 0 failed
