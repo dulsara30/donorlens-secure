@@ -13,6 +13,8 @@ import {
   authorizeRoles,
 } from "../../middleware/auth.middleware.js";
 import upload, { uploadImageOnly } from "../../middleware/upload.middleware.js";
+import { validateFiles } from "../../middleware/fileValidation.middleware.js";
+import { ALLOWED_FILE_TYPES } from "../../utils/fileHelpers.js";
 
 const router = express.Router();
 
@@ -20,6 +22,7 @@ router.post(
   "/add-campaign",
   authenticateToken,
   uploadImageOnly.single("coverImage"),
+  validateFiles({ allowedTypes: ALLOWED_FILE_TYPES.images }),
   createCampaign,
 );
 
@@ -35,6 +38,7 @@ router.put(
   "/update-campaign/:campaignId",
   authenticateToken,
   uploadImageOnly.single("coverImage"),
+  validateFiles({ allowedTypes: ALLOWED_FILE_TYPES.images }),
   updateCampaignController,
 );
 
