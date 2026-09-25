@@ -1,0 +1,10 @@
+# NF3: confirming both deleted test-cleanup routes now 404
+# server PID confirmed via netstat: 13112
+
+## DELETE /api/test/cleanup/all
+{"success":false,"error":"Not found","message":"Route /api/test/cleanup/all not found","resource":"Route /api/test/cleanup/all"}
+HTTP 404
+
+## DELETE /api/test/cleanup/user/nobody@example.com
+{"success":false,"error":"Not found","message":"Route /api/test/cleanup/user/nobody@example.com not found","resource":"Route /api/test/cleanup/user/nobody@example.com"}
+HTTP 404

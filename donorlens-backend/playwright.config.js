@@ -15,6 +15,10 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
   timeout: 30000,
+  /* NF3: runs scripts/cleanupTestData.js once after the whole suite
+   * finishes, now that the unauthenticated /api/test/cleanup/* routes it
+   * used to call have been removed. See tests/global-teardown.js. */
+  globalTeardown: "./tests/global-teardown.js",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

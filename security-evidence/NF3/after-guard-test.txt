@@ -1,0 +1,18 @@
+# NF3: scripts/cleanupTestData.js MONGO_URI safety-guard tests
+
+## Case 1: MONGO_URI explicitly empty (simulates unset -- dotenv.config() does not override an already-set env var, even an empty one)
+❌ Cleanup failed: Refusing to run: MONGO_URI's database name ("(none)") does not contain "test". Point MONGO_URI at a database such as .../donorlens_test before running this script.
+exit=1
+
+## Case 2: realistic-looking non-test database name
+❌ Cleanup failed: Refusing to run: MONGO_URI's database name ("donorlens") does not contain "test". Point MONGO_URI at a database such as .../donorlens_test before running this script.
+exit=1
+
+## Case 3: no database name in the URI (this is the team's actual current .env shape -- the risky implicit-'test'-database case this guard is specifically meant to catch)
+❌ Cleanup failed: Refusing to run: MONGO_URI's database name ("(none)") does not contain "test". Point MONGO_URI at a database such as .../donorlens_test before running this script.
+exit=1
+
+## Case 4: explicit test database name -- guard passes and attempts to connect (fails here only because the host is fake, not because of the guard)
+🔄 Connecting to MongoDB (database: donorlens_test)...
+❌ Cleanup failed: querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net
+exit=1
