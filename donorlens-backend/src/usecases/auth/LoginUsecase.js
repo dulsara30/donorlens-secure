@@ -51,6 +51,17 @@ export default async function LoginUsecase(email, password) {
       };
     }
 
+    // Google-linked accounts have no local password — fail with the same
+    // generic message as a wrong password so this doesn't leak which accounts
+    // are Google-only.
+    if (!user.passwordHash) {
+      return {
+        success: false,
+        status: 401,
+        message: "Invalid email or password",
+      };
+    }
+
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {

@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRouter from "./routes/auth/auth.route.js";
+import googleAuthRouter from "./routes/auth/googleAuth.route.js";
 import errorHandler from "./middleware/errorHandler.middleware.js";
 import { NotFoundError } from "./utils/errors.js";
 import campaignRoutes from "./routes/campaigns/campaign.routes.js";
@@ -20,6 +21,11 @@ const createApp = () => {
   dotenv.config();
   const app = express();
 
+  // Trust one hop of reverse proxy (e.g. Render's) so req.ip / rate limiting
+  // see the real client IP instead of the proxy's. "1", not true — true would
+  // let a client spoof its own IP via X-Forwarded-For and dodge rate limits.
+  app.set("trust proxy", 1);
+
   // Security middleware
   app.use(helmet());
 
@@ -27,8 +33,9 @@ const createApp = () => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Cookie parser middleware
-  app.use(cookieParser());
+  // Cookie parser middleware — signed so the OAuth state/nonce/PKCE cookie
+  // (see routes/auth/googleAuth.route.js) can't be edited in transit.
+  app.use(cookieParser(process.env.COOKIE_SECRET));
 
   // CORS configuration - allow credentials for HttpOnly cookies
   app.use(
@@ -53,6 +60,8 @@ const createApp = () => {
   // API Routes
   //Auth routes (login, register, refresh token, logout, get current user)
   app.use("/api/auth", authRouter);
+  // Google OIDC sign-in (Authorization Code + PKCE) — GET /api/auth/google, /callback
+  app.use("/api/auth/google", googleAuthRouter);
 
   //app.use("/api/ngo/campaigns", campaignRoutes);
 
