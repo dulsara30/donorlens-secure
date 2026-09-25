@@ -47,6 +47,30 @@ Full command log: `frontend-npm-audit-fix-log.txt`, `backend-npm-audit-fix-log.t
 
 No frontend leftovers. No `overrides` were needed.
 
+## Part 2 result: nodemailer major upgrade
+
+`npm install nodemailer@^9.1.1` (backend). The parent `nodemailer-express-handlebars@7.0.0` is already the
+latest version and its peer range is `nodemailer >=6.0.0`, so it dedupes to 9.1.1 with no override.
+
+| Project  | After part 1 | After part 2 |
+|----------|--------------|--------------|
+| Backend  | 1 high (nodemailer 8.0.11) | **0** |
+| Frontend | 0 | **0** |
+
+Why 9.1.1 and not 10.0.10: 9.1.1 is outside every advisory range (all are `<=9.1.0`). Its only breaking change
+(9.0.0) is TLS certificate validation when nodemailer fetches remote content: URL attachments, OAuth2 token
+endpoints, and HTTP proxies. DonorLens uses none of these (SMTP user/pass + handlebars `compile` plugin only). 10.0.0
+is a full TypeScript rewrite released in September 2026 with no additional security fixes for our advisories.
+
+Frontend lockfile: the `"libc"` fields written by npm 11 in part 1 were dropped by npm 10 (metadata only, no package
+changes). The npm 10 form is committed so teammates and CI (Node 20 / npm 10) don't generate the same diff.
+
+## Final leftover table
+
+| Package | Severity | Runtime or dev-only | Decision |
+|---|---|---|---|
+| *(none)* | — | — | Both projects report `found 0 vulnerabilities` (`after-part2-*-npm-audit.txt`) |
+
 ## Regression results
 
 | Check | Before | After | File |
@@ -56,6 +80,8 @@ No frontend leftovers. No `overrides` were needed.
 | Backend module load + render all 9 email templates via nodemailer-express-handlebars | — | 9/9 OK | `after-part1-backend-smoke.txt` |
 | Backend HTTP smoke (health, 404, multer errors, auth guards, qs body) | — | all expected codes | `after-part1-backend-http-smoke.txt` |
 | Backend real-env startup: Cloudinary config, MongoDB Atlas connect (mongoose 9.10.2), SMTP verify (nodemailer 8.0.11), public campaign query | — | all OK, read-only | `after-part1-backend-real-startup.txt` |
+| Part 2 (nodemailer 9.1.1): render all 9 email templates | — | 9/9 OK | `after-part2-backend-smoke.txt` |
+| Part 2 (nodemailer 9.1.1): real-env startup, SMTP verify | — | OK, read-only | `after-part2-backend-real-startup.txt` |
 | Backend Playwright API suite | — | **deferred**: the suite writes users, Cloudinary uploads and emails, and the only configured DB is the shared Atlas default DB. Run it against a separate test DB | `after-part1-playwright.txt` (pending) |
 
 The one failing vitest case (`DonatePage > should display validation errors when submitting Step 1 with amount < 50`,
