@@ -167,15 +167,10 @@ Create a `.env` file in `donorlens-frontend` with the following values:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
-VITE_PAYHERE_MERCHANT_ID=your_payhere_merchant_id
-VITE_PAYHERE_MERCHANT_SECRET=your_payhere_merchant_secret
-
-VITE_PAYHERE_CONNECTION_STRING=https://sandbox.payhere.lk/pay/checkout
-PAYHERE_APP_ID=4OVyc91fF7Q4JH5EsQaRCV3D7
-PAYHERE_APP_SECRET=49aLFWvBL9z4TwS9BKZq1Q4JBxOzvUT5u8RjZL7qOYQk
-VITE_PAYHERE_MERCHANT_ID=1234205
-VITE_PAYHERE_MERCHANT_SECRET=MzE5NjQwODUyNDI3MTI2NTE5MjIyMDkwMzQ2NTM5MzgwMTMwMDcwMA==
 ```
+
+PayHere merchant credentials belong only in `donorlens-backend/.env`; see
+`donorlens-backend/.env.example` for the required variable names.
 
 Start the frontend:
 

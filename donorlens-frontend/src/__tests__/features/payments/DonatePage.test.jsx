@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import DonatePage from "../../../features/payments/pages/DonatePage";
@@ -8,6 +8,10 @@ import { getSingleCampaignApi } from "../../../features/campaigns/api";
 // Mock the API call
 vi.mock("../../../features/campaigns/api", () => ({
   getSingleCampaignApi: vi.fn(),
+}));
+
+vi.mock("../../../lib/axios", () => ({
+  default: { post: vi.fn() },
 }));
 
 // Mock the hidden form component to avoid form submission issues in test environment
@@ -26,6 +30,7 @@ vi.mock("../../../state/useAuth", () => ({
 
 // Import useAuth after it has been mocked
 import { useAuth } from "../../../state/useAuth";
+import api from "../../../lib/axios";
 
 describe("DonatePage", () => {
   const mockCampaign = {
@@ -36,6 +41,7 @@ describe("DonatePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getSingleCampaignApi.mockResolvedValue({ data: mockCampaign });
+    api.post.mockResolvedValue({ data: { order_id: "DL-test" } });
 
     // Provide default mock implementation for useAuth
     useAuth.mockReturnValue({
@@ -199,6 +205,12 @@ describe("DonatePage", () => {
       await user.click(proceedBtn);
 
       // Verify UI changes to Loading / Submitting 
+      await waitFor(() => {
+        expect(api.post).toHaveBeenCalledWith("/payment/checkout", {
+          campaignId: "test-campaign-123",
+          amount: 1000,
+        });
+      });
       expect(proceedBtn.disabled).toBe(true);
       expect(screen.getByText(/Redirecting/i)).toBeTruthy();
     });

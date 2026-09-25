@@ -8,6 +8,7 @@ import DonateStepAmount    from '../../../components/donate/DonateStepAmount';
 import DonateStepDetails   from '../../../components/donate/DonateStepDetails';
 import DonateStepReview    from '../../../components/donate/DonateStepReview';
 import { getSingleCampaignApi } from '../../campaigns/api';
+import api from '../../../lib/axios';
 
 export default function DonatePage() {
   const { id: campaignId } = useParams();
@@ -29,7 +30,8 @@ export default function DonatePage() {
 
   const [errors, setErrors]         = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderId] = useState(() => `DL-${campaignId?.slice(-6)}-${Date.now()}`);
+  const [checkout, setCheckout] = useState(null);
+  const [submissionError, setSubmissionError] = useState('');
 
   const finalAmount = useCustom ? parseFloat(customAmount) || 0 : selectedAmount;
 
@@ -77,8 +79,20 @@ export default function DonatePage() {
 
   const handleProceedToPayment = () => {
     setIsSubmitting(true);
-    setTimeout(() => formRef.current?.submit(), 300);
+    setSubmissionError('');
+    api.post('/payment/checkout', { campaignId, amount: finalAmount })
+      .then(({ data }) => setCheckout(data))
+      .catch((error) => {
+        setSubmissionError(
+          error.response?.data?.message || 'Unable to start your payment. Please try again.',
+        );
+        setIsSubmitting(false);
+      });
   };
+
+  useEffect(() => {
+    if (checkout && formRef.current) formRef.current.submit();
+  }, [checkout]);
 
   const updateDonorInfo = (field, value) => {
     setDonorInfo((prev) => ({ ...prev, [field]: value }));
@@ -153,7 +167,6 @@ export default function DonatePage() {
                 finalAmount={finalAmount}
                 donorInfo={donorInfo}
                 campaign={campaign}
-                orderId={orderId}
               />
             )}
 
@@ -202,6 +215,11 @@ export default function DonatePage() {
                 </button>
               )}
             </div>
+            {submissionError && (
+              <p role="alert" className="px-8 pb-6 text-sm text-red-600">
+                {submissionError}
+              </p>
+            )}
           </div>
 
           {/* Bottom legal note */}
@@ -218,10 +236,7 @@ export default function DonatePage() {
       {/* Hidden PayHere form – submitted programmatically on step 3 */}
       <PayHereHiddenForm
         formRef={formRef}
-        orderId={orderId}
-        items={campaign?.title || 'DonorLens Campaign Donation'}
-        amount={finalAmount}
-        currency="LKR"
+        checkout={checkout}
         firstName={donorInfo.firstName}
         lastName={donorInfo.lastName}
         email={donorInfo.email}
