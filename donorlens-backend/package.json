@@ -8,7 +8,7 @@
     "start": "node server.js",
     "test": "npx playwright test",
     "test:report": "npx playwright show-report",
-    "cleanup": "node cleanup-test-data.js"
+    "cleanup": "node scripts/cleanupTestData.js"
   },
   "keywords": [],
   "author": "",

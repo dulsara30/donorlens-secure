@@ -70,9 +70,10 @@ donorlens-backend/
     usecases/
     utils/
   tests/
+  scripts/
+    cleanupTestData.js
   playwright.config.js
   render.yaml
-  cleanup-test-data.js
 
 donorlens-frontend/
   src/
@@ -438,14 +439,14 @@ raisedAmount=250000
 | POST   | `/api/payment`        | Bearer token | JSON body with payment payload | Creates a payment record               |
 | GET    | `/api/payment/logs`   | Public       | No body required               | Returns payment logs                   |
 
-### Test Cleanup Endpoints
+### Test Data Cleanup
 
-These endpoints are only mounted when `NODE_ENV !== "production"`.
-
-| Method | Endpoint                        | Auth                     | Request               | Response               |
-| ------ | ------------------------------- | ------------------------ | --------------------- | ---------------------- |
-| DELETE | `/api/test/cleanup/user/:email` | Development/testing only | Email address in path | Deletes one test user  |
-| DELETE | `/api/test/cleanup/all`         | Development/testing only | No body required      | Deletes all test users |
+There is no HTTP route for this (removed under NF3 -- see `security-evidence/NF3/`: unauthenticated
+delete-by-pattern routes are a real risk if `NODE_ENV` is ever misconfigured in production). To remove the
+test users the Playwright suite creates, run `npm run cleanup` (`donorlens-backend/scripts/cleanupTestData.js`)
+directly against the database. It connects to `MONGO_URI` itself and refuses to run unless that URI's database
+name contains `test`. The Playwright suite also runs it automatically via `globalTeardown` after the whole
+suite finishes.
 
 ## Deployment Documentation
 
@@ -610,7 +611,7 @@ npx artillery run tests/performance/execution-api-load-test.yml
 
 ### 4. Testing Notes
 
-- The backend test-only cleanup routes are disabled in production.
+- Test-user cleanup is a script (`npm run cleanup`), not an HTTP route -- see "Test Data Cleanup" above.
 - The frontend React Query cache is configured with a 5 minute stale time and no refetch on window focus.
 - Playwright runs against the local backend server.
 - Before running integration or performance tests, ensure MongoDB and the backend are running.

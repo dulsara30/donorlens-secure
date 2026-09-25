@@ -38,31 +38,13 @@ test.describe("NGO Registration API Tests", () => {
     console.log("Test fixtures ready!");
   });
 
-  test.afterAll(async ({ request }) => {
-    console.log("Starting test cleanup...");
+  test.afterAll(() => {
+    // NF3: the unauthenticated /api/test/cleanup/* routes this used to call
+    // have been removed. Cleanup now happens once for the whole suite via
+    // globalTeardown (tests/global-teardown.js -> scripts/cleanupTestData.js),
+    // matching these NGOs by email pattern rather than by this per-test list.
     console.log(
-      `Cleaning up ${createdEmails.length} NGO registrations from database...`,
-    );
-
-    // Delete each test NGO created during tests
-    for (const email of createdEmails) {
-      try {
-        const deleteResponse = await request.delete(
-          `${API_URL}/test/cleanup/user/${email}`,
-        );
-        if (deleteResponse.ok) {
-          console.log(` Deleted test user: ${email}`);
-        } else {
-          console.warn(` Failed to delete: ${email}`);
-        }
-      } catch (error) {
-        console.error(` Error deleting ${email}:`, error.message);
-      }
-    }
-
-    console.log(" Test cleanup completed!");
-    console.log(
-      `Total tests executed: ${createdEmails.length} NGO registrations`,
+      `Registered ${createdEmails.length} NGO(s) in this run: ${createdEmails.join(", ") || "(none)"}`,
     );
   });
 
