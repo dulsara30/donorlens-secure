@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import Payment from "../../models/payment/Payment.js";
 import Campaign from "../../models/campaigns/Campaign.js";
 
@@ -45,6 +46,7 @@ export class PaymentUsecase {
       donor: donorId,
       campaign: campaignId,
       amount,
+      orderId: `DL-${crypto.randomUUID()}`,
       currency: currency || "LKR",
       paymentMethod: paymentMethod || "CARD",
       status: "COMPLETED",

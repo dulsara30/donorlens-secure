@@ -24,6 +24,14 @@ const paymentSchema = new Schema(
       min: [1, "Amount must be greater than 0"],
     },
 
+    orderId: {
+      type: String,
+      required: true,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+
     currency: {
       type: String,
       default: "LKR",
@@ -33,8 +41,17 @@ const paymentSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "FAILED"],
-      default: "COMPLETED",
+      enum: ["PENDING", "COMPLETED", "REJECTED", "FAILED"],
+      default: "PENDING",
+    },
+
+    confirmedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    confirmedAt: {
+      type: Date,
     },
 
     transactionId: {

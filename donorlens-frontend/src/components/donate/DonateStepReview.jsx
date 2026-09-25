@@ -1,6 +1,6 @@
 import { formatCurrency } from '../../features/payments/helpers';
 
-export default function DonateStepReview({ finalAmount, donorInfo, campaign, orderId }) {
+export default function DonateStepReview({ finalAmount, donorInfo, campaign }) {
   return (
     <div className="p-8">
       <h2 className="text-xl font-bold text-slate-900 mb-1">Review Your Donation</h2>
@@ -36,12 +36,6 @@ export default function DonateStepReview({ finalAmount, donorInfo, campaign, ord
           <span className="text-slate-500">City</span>
           <span className="font-medium text-slate-800 text-right">{donorInfo.city}</span>
         </div>
-      </div>
-
-      {/* Order reference */}
-      <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3 flex items-center justify-between mb-6">
-        <span className="text-xs text-teal-600 font-medium">Order Reference</span>
-        <span className="text-xs font-mono font-bold text-teal-800">{orderId}</span>
       </div>
 
       {/* Trust indicators */}

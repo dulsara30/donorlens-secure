@@ -1,9 +1,23 @@
 import { PaymentUsecase } from "../../usecases/payment/payment.js";
 import { PaymentLogUsecase } from "../../usecases/payment/paymentLog.js";
+import { createCheckout } from "../../usecases/payment/createCheckout.js";
 import { isNull } from "../../utils/isNull.js";
 
 const paymentUsecase = new PaymentUsecase();
 const paymentLogUsecase = new PaymentLogUsecase();
+
+export const createCheckoutController = async (req, res, next) => {
+  try {
+    const checkout = await createCheckout({
+      donorId: req.user.userId,
+      campaignId: req.body?.campaignId,
+      amount: req.body?.amount,
+    });
+    return res.status(201).json(checkout);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getAllPayments = async (req, res, next) => {
   try {

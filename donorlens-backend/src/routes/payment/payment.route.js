@@ -3,6 +3,7 @@ import {
   getAllPayments,
   getUserPaymentHistory,
   createPayment,
+  createCheckoutController,
 } from "../../controllers/payment/payment.controller.js";
 import {
   authenticateToken,
@@ -19,6 +20,8 @@ router.get("/health", (req, res) => {
 router.get("/", authenticateToken, authorizeRoles("ADMIN"), getAllPayments);
 
 router.get("/my", authenticateToken, getUserPaymentHistory);
+
+router.post("/checkout", authenticateToken, createCheckoutController);
 
 router.post("/", authenticateToken, createPayment);
 
