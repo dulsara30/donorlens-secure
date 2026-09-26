@@ -6,6 +6,16 @@
 
 import api from "../../lib/axios";
 
+export const fetchPendingPaymentsAPI = async () => {
+  const response = await api.get("/payment/pending");
+  return response.data;
+};
+
+export const reviewPaymentAPI = async (paymentId, decision) => {
+  const response = await api.patch(`/payment/${paymentId}/${decision}`);
+  return response.data;
+};
+
 /**
  * Fetch dashboard statistics
  * @returns {Promise} Dashboard stats object
