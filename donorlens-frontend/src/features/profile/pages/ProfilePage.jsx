@@ -5,6 +5,20 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../state/useAuth";
 import { getUserDonations } from "../api";
 
+const donationStatusLabels = {
+  PENDING: "Pending",
+  COMPLETED: "Completed",
+  REJECTED: "Rejected",
+  FAILED: "Failed",
+};
+
+const donationStatusStyles = {
+  PENDING: "bg-yellow-100 text-yellow-800",
+  COMPLETED: "bg-green-100 text-green-800",
+  REJECTED: "bg-red-100 text-red-800",
+  FAILED: "bg-slate-100 text-slate-700",
+};
+
 export default function ProfilePage() {
   const { user } = useAuth();
   const [donations, setDonations] = useState([]);
@@ -116,11 +130,8 @@ export default function ProfilePage() {
                         {donation.paymentMethod || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${donation.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                          donation.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                          {donation.status || 'UNKNOWN'}
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${donationStatusStyles[donation.status] || "bg-slate-100 text-slate-700"}`}>
+                          {donationStatusLabels[donation.status] || "Unknown"}
                         </span>
                       </td>
                     </tr>

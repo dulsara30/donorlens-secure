@@ -126,6 +126,10 @@ NODE_ENV=development
 PORT=5000
 CLIENT_URL=http://localhost:5173
 MONGO_URI=your_mongodb_connection_string
+BACKEND_URL=http://localhost:5000
+PAYHERE_CURRENCY=LKR
+PAYHERE_MERCHANT_ID=your_payhere_merchant_id
+PAYHERE_MERCHANT_SECRET=your_payhere_merchant_secret
 
 JWT_ACCESS_SECRET=your_access_secret
 JWT_ACCESS_EXPIRY=15m
@@ -426,13 +430,25 @@ raisedAmount=250000
 
 ### Payment Endpoints
 
-| Method | Endpoint              | Auth         | Request                        | Response                               |
-| ------ | --------------------- | ------------ | ------------------------------ | -------------------------------------- |
-| GET    | `/api/payment/health` | Public       | No body required               | Health status for payment module       |
-| GET    | `/api/payment`        | ADMIN token  | No body required               | Returns all payment records            |
-| GET    | `/api/payment/my`     | Bearer token | No body required               | Returns current user's payment history |
-| POST   | `/api/payment`        | Bearer token | JSON body with payment payload | Creates a payment record               |
-| GET    | `/api/payment/logs`   | Public       | No body required               | Returns payment logs                   |
+| Method | Endpoint                        | Auth         | Request                                 | Response                                      |
+| ------ | ------------------------------- | ------------ | --------------------------------------- | --------------------------------------------- |
+| GET    | `/api/payment/health`           | Public       | No body required                        | Health status for payment module              |
+| POST   | `/api/payment/checkout`         | Bearer token | `campaignId`, `amount`                  | Creates a `PENDING` payment and checkout data |
+| GET    | `/api/payment/my`               | Bearer token | No body required                        | Current user's payment history and statuses   |
+| GET    | `/api/payment/pending`          | ADMIN token  | No body required                        | Pending donations for manual review            |
+| GET    | `/api/payment`                  | ADMIN token  | No body required                        | All payment records                           |
+| PATCH  | `/api/payment/:id/confirm`      | ADMIN token  | Payment ID in path                      | Confirms a pending payment once                |
+| PATCH  | `/api/payment/:id/reject`       | ADMIN token  | Payment ID in path                      | Rejects a pending payment once                 |
+| GET    | `/api/payment/logs`             | ADMIN token  | No body required                        | Payment logs                                  |
+
+The browser return from PayHere is not proof of payment. Checkout records remain `PENDING` until an admin
+compares the order ID, amount, and currency with the PayHere merchant portal and confirms or rejects the
+record. Only confirmed payments increase campaign totals. Automatic PayHere server-notification verification
+is **not implemented**: the checkout payload includes a `notify_url`, but there is no signed-notification
+verification handler, so no callback or browser redirect can mark a payment complete.
+This workflow applies to new checkouts. Existing `COMPLETED` records from the former client-controlled path
+are not automatically reclassified; an admin must reconcile those records and their historical campaign totals
+against PayHere before treating them as verified.
 
 ### Test Data Cleanup
 
@@ -490,7 +506,11 @@ The frontend is configured as a single-page React app with SPA rewrites in `dono
 | `NODE_ENV`              | Controls development/production behavior |
 | `PORT`                  | Backend listening port                   |
 | `CLIENT_URL`            | Frontend origin allowed by CORS          |
+| `BACKEND_URL`           | Public backend origin used for PayHere return notifications |
 | `MONGO_URI`             | MongoDB connection string                |
+| `PAYHERE_CURRENCY`      | Currency used for PayHere checkout       |
+| `PAYHERE_MERCHANT_ID`   | PayHere merchant ID                      |
+| `PAYHERE_MERCHANT_SECRET` | PayHere merchant secret; backend only  |
 | `JWT_ACCESS_SECRET`     | Access token signing secret              |
 | `JWT_ACCESS_EXPIRY`     | Access token lifetime                    |
 | `JWT_REFRESH_SECRET`    | Refresh token signing secret             |
@@ -512,8 +532,6 @@ The frontend is configured as a single-page React app with SPA rewrites in `dono
 | Variable                       | Purpose                                                 |
 | ------------------------------ | ------------------------------------------------------- |
 | `VITE_API_URL`                 | Backend API base URL used by Axios                      |
-| `VITE_PAYHERE_MERCHANT_ID`     | PayHere merchant ID                                     |
-| `VITE_PAYHERE_MERCHANT_SECRET` | PayHere merchant secret used by the current integration |
 
 ### Live URLs
 

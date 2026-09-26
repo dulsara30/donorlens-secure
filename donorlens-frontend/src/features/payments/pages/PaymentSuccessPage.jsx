@@ -102,11 +102,11 @@ export default function PaymentSuccessPage() {
               {/* Headline */}
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                  Payment Received!
+                  Donation Awaiting Confirmation
                 </h1>
                 <p className="text-slate-500 text-sm leading-relaxed">
-                  Thank you for your generous donation. Your payment has been
-                  submitted to PayHere and is being processed.
+                  Thank you! Your donation has been received and is waiting for
+                  confirmation. An admin will verify the order against PayHere.
                 </p>
 
                 {/* Order ID badge */}
@@ -126,9 +126,9 @@ export default function PaymentSuccessPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-xs text-amber-800 leading-relaxed">
-                  <span className="font-semibold">Confirmation in progress.</span> Your donation will be confirmed
-                  once PayHere notifies us of the final payment status. This
-                  usually takes a few seconds to a minute.
+                  <span className="font-semibold">Pending admin review.</span>{" "}
+                  The return from PayHere does not confirm payment. Your donation
+                  will count toward the campaign only after an admin verifies it.
                 </p>
               </div>
 
@@ -137,20 +137,20 @@ export default function PaymentSuccessPage() {
                 <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">What happens next</h2>
                 <NextStep
                   number="1"
-                  title="PayHere confirms your payment"
-                  description="Our server receives an automatic notification from PayHere with the final payment status."
+                  title="Your order is checked"
+                  description="An admin checks the order ID against the PayHere merchant portal."
                   delay="0.1s"
                 />
                 <NextStep
                   number="2"
-                  title="You receive a confirmation email"
-                  description="A receipt will be sent to your registered email address once the payment is verified."
+                  title="Your donation status is updated"
+                  description="Check your profile donation history for Pending, Completed, or Rejected."
                   delay="0.2s"
                 />
                 <NextStep
                   number="3"
-                  title="Your donation goes to work"
-                  description="100% of your donation is directed to the campaign. Thank you for making a difference!"
+                  title="Campaign totals update after confirmation"
+                  description="Only donations verified by an admin are added to the campaign total."
                   delay="0.3s"
                 />
               </div>
