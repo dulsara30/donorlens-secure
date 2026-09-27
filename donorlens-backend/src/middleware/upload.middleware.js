@@ -110,7 +110,7 @@ const fileFilter = (req, file, cb) => {
     if (!ALLOWED_FILE_TYPES.all.includes(file.mimetype)) {
       return cb(
         new FileUploadError(
-          `File type ${file.mimetype} is not allowed. Allowed types: images (jpg, png, webp) and documents (pdf, doc, docx)`,
+          `File type ${file.mimetype} is not allowed. Allowed types: images (jpg, png, webp) and documents (pdf)`,
         ),
         false,
       );
@@ -142,11 +142,15 @@ const imageOnlyFilter = (req, file, cb) => {
   }
 };
 
+// F08: this is a ceiling only, so multer doesn't reject a document before it
+// reaches file-type detection. The real per-category limits (5MB image,
+// 10MB document) are enforced against the *detected* type in
+// fileValidation.middleware.js, which runs right after this.
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: FILE_SIZE_LIMITS.default,
+    fileSize: FILE_SIZE_LIMITS.document,
     files: 10,
   },
 });

@@ -70,9 +70,10 @@ donorlens-backend/
     usecases/
     utils/
   tests/
+  scripts/
+    cleanupTestData.js
   playwright.config.js
   render.yaml
-  cleanup-test-data.js
 
 donorlens-frontend/
   src/
@@ -125,6 +126,10 @@ NODE_ENV=development
 PORT=5000
 CLIENT_URL=http://localhost:5173
 MONGO_URI=your_mongodb_connection_string
+BACKEND_URL=http://localhost:5000
+PAYHERE_CURRENCY=LKR
+PAYHERE_MERCHANT_ID=your_payhere_merchant_id
+PAYHERE_MERCHANT_SECRET=your_payhere_merchant_secret
 
 JWT_ACCESS_SECRET=your_access_secret
 JWT_ACCESS_EXPIRY=15m
@@ -166,15 +171,10 @@ Create a `.env` file in `donorlens-frontend` with the following values:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
-VITE_PAYHERE_MERCHANT_ID=your_payhere_merchant_id
-VITE_PAYHERE_MERCHANT_SECRET=your_payhere_merchant_secret
-
-VITE_PAYHERE_CONNECTION_STRING=https://sandbox.payhere.lk/pay/checkout
-PAYHERE_APP_ID=4OVyc91fF7Q4JH5EsQaRCV3D7
-PAYHERE_APP_SECRET=49aLFWvBL9z4TwS9BKZq1Q4JBxOzvUT5u8RjZL7qOYQk
-VITE_PAYHERE_MERCHANT_ID=1234205
-VITE_PAYHERE_MERCHANT_SECRET=MzE5NjQwODUyNDI3MTI2NTE5MjIyMDkwMzQ2NTM5MzgwMTMwMDcwMA==
 ```
+
+PayHere merchant credentials belong only in `donorlens-backend/.env`; see
+`donorlens-backend/.env.example` for the required variable names.
 
 Start the frontend:
 
@@ -430,22 +430,34 @@ raisedAmount=250000
 
 ### Payment Endpoints
 
-| Method | Endpoint              | Auth         | Request                        | Response                               |
-| ------ | --------------------- | ------------ | ------------------------------ | -------------------------------------- |
-| GET    | `/api/payment/health` | Public       | No body required               | Health status for payment module       |
-| GET    | `/api/payment`        | ADMIN token  | No body required               | Returns all payment records            |
-| GET    | `/api/payment/my`     | Bearer token | No body required               | Returns current user's payment history |
-| POST   | `/api/payment`        | Bearer token | JSON body with payment payload | Creates a payment record               |
-| GET    | `/api/payment/logs`   | Public       | No body required               | Returns payment logs                   |
+| Method | Endpoint                        | Auth         | Request                                 | Response                                      |
+| ------ | ------------------------------- | ------------ | --------------------------------------- | --------------------------------------------- |
+| GET    | `/api/payment/health`           | Public       | No body required                        | Health status for payment module              |
+| POST   | `/api/payment/checkout`         | Bearer token | `campaignId`, `amount`                  | Creates a `PENDING` payment and checkout data |
+| GET    | `/api/payment/my`               | Bearer token | No body required                        | Current user's payment history and statuses   |
+| GET    | `/api/payment/pending`          | ADMIN token  | No body required                        | Pending donations for manual review            |
+| GET    | `/api/payment`                  | ADMIN token  | No body required                        | All payment records                           |
+| PATCH  | `/api/payment/:id/confirm`      | ADMIN token  | Payment ID in path                      | Confirms a pending payment once                |
+| PATCH  | `/api/payment/:id/reject`       | ADMIN token  | Payment ID in path                      | Rejects a pending payment once                 |
+| GET    | `/api/payment/logs`             | ADMIN token  | No body required                        | Payment logs                                  |
 
-### Test Cleanup Endpoints
+The browser return from PayHere is not proof of payment. Checkout records remain `PENDING` until an admin
+compares the order ID, amount, and currency with the PayHere merchant portal and confirms or rejects the
+record. Only confirmed payments increase campaign totals. Automatic PayHere server-notification verification
+is **not implemented**: the checkout payload includes a `notify_url`, but there is no signed-notification
+verification handler, so no callback or browser redirect can mark a payment complete.
+This workflow applies to new checkouts. Existing `COMPLETED` records from the former client-controlled path
+are not automatically reclassified; an admin must reconcile those records and their historical campaign totals
+against PayHere before treating them as verified.
 
-These endpoints are only mounted when `NODE_ENV !== "production"`.
+### Test Data Cleanup
 
-| Method | Endpoint                        | Auth                     | Request               | Response               |
-| ------ | ------------------------------- | ------------------------ | --------------------- | ---------------------- |
-| DELETE | `/api/test/cleanup/user/:email` | Development/testing only | Email address in path | Deletes one test user  |
-| DELETE | `/api/test/cleanup/all`         | Development/testing only | No body required      | Deletes all test users |
+There is no HTTP route for this (removed under NF3 -- see `security-evidence/NF3/`: unauthenticated
+delete-by-pattern routes are a real risk if `NODE_ENV` is ever misconfigured in production). To remove the
+test users the Playwright suite creates, run `npm run cleanup` (`donorlens-backend/scripts/cleanupTestData.js`)
+directly against the database. It connects to `MONGO_URI` itself and refuses to run unless that URI's database
+name contains `test`. The Playwright suite also runs it automatically via `globalTeardown` after the whole
+suite finishes.
 
 ## Deployment Documentation
 
@@ -494,7 +506,11 @@ The frontend is configured as a single-page React app with SPA rewrites in `dono
 | `NODE_ENV`              | Controls development/production behavior |
 | `PORT`                  | Backend listening port                   |
 | `CLIENT_URL`            | Frontend origin allowed by CORS          |
+| `BACKEND_URL`           | Public backend origin used for PayHere return notifications |
 | `MONGO_URI`             | MongoDB connection string                |
+| `PAYHERE_CURRENCY`      | Currency used for PayHere checkout       |
+| `PAYHERE_MERCHANT_ID`   | PayHere merchant ID                      |
+| `PAYHERE_MERCHANT_SECRET` | PayHere merchant secret; backend only  |
 | `JWT_ACCESS_SECRET`     | Access token signing secret              |
 | `JWT_ACCESS_EXPIRY`     | Access token lifetime                    |
 | `JWT_REFRESH_SECRET`    | Refresh token signing secret             |
@@ -516,8 +532,6 @@ The frontend is configured as a single-page React app with SPA rewrites in `dono
 | Variable                       | Purpose                                                 |
 | ------------------------------ | ------------------------------------------------------- |
 | `VITE_API_URL`                 | Backend API base URL used by Axios                      |
-| `VITE_PAYHERE_MERCHANT_ID`     | PayHere merchant ID                                     |
-| `VITE_PAYHERE_MERCHANT_SECRET` | PayHere merchant secret used by the current integration |
 
 ### Live URLs
 
@@ -610,7 +624,7 @@ npx artillery run tests/performance/execution-api-load-test.yml
 
 ### 4. Testing Notes
 
-- The backend test-only cleanup routes are disabled in production.
+- Test-user cleanup is a script (`npm run cleanup`), not an HTTP route -- see "Test Data Cleanup" above.
 - The frontend React Query cache is configured with a 5 minute stale time and no refetch on window focus.
 - Playwright runs against the local backend server.
 - Before running integration or performance tests, ensure MongoDB and the backend are running.

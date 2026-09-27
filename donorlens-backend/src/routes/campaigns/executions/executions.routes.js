@@ -26,9 +26,14 @@ router.post(
     { name: "receipts", maxCount: 5 },
   ]),
   validateFiles({
-    allowedTypes: ALLOWED_FILE_TYPES.all,
     minFiles: 1,
     maxFiles: 15,
+    // F08: evidencePhotos must be photos; receipts may be a photo of a
+    // receipt or a scanned PDF.
+    fieldRules: {
+      evidencePhotos: ALLOWED_FILE_TYPES.images,
+      receipts: ALLOWED_FILE_TYPES.all,
+    },
   }),
   createExecutionUpdate,
 );
@@ -49,9 +54,12 @@ router.patch(
     { name: "receipts", maxCount: 5 },
   ]),
   validateFiles({
-    allowedTypes: ALLOWED_FILE_TYPES.all,
     minFiles: 0, // Files are optional for update
     maxFiles: 15,
+    fieldRules: {
+      evidencePhotos: ALLOWED_FILE_TYPES.images,
+      receipts: ALLOWED_FILE_TYPES.all,
+    },
   }),
   updateExecutionUpdate,
 );

@@ -5,17 +5,7 @@ import { Link, useNavigate, useLocation, useSearchParams } from "react-router-do
 import { useAuth } from "../../state/useAuth";
 import { login as loginApi } from "../../features/auth/api";
 import { setAccessToken as setAxiosAccessToken } from "../../lib/axios";
-
-// Friendly messages for ?error= codes the Google OIDC callback can redirect
-// back with (see donorlens-backend/src/routes/auth/googleAuth.route.js)
-const GOOGLE_ERROR_MESSAGES = {
-  google_cancelled: "Google sign-in was cancelled.",
-  invalid_state: "That Google sign-in link expired or was already used. Please try again.",
-  invalid_nonce: "That Google sign-in link expired or was already used. Please try again.",
-  email_not_verified: "Your Google account's email isn't verified yet. Please verify it with Google first.",
-  account_not_allowed: "Google sign-in isn't available for NGO or admin accounts. Please use your password.",
-  google_failed: "Google sign-in didn't work. Please try again or use your password.",
-};
+import { getGoogleErrorMessage } from "../../features/auth/googleAuthErrors";
 
 const LoginCard = () => {
 
@@ -28,8 +18,8 @@ const LoginCard = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
-  const [error, setError] = useState(
-    () => GOOGLE_ERROR_MESSAGES[searchParams.get("error")] || "",
+  const [error, setError] = useState(() =>
+    getGoogleErrorMessage(searchParams.get("error")),
   );
 
   const navigate = useNavigate();

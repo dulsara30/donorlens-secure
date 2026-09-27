@@ -47,6 +47,30 @@ Full command log: `frontend-npm-audit-fix-log.txt`, `backend-npm-audit-fix-log.t
 
 No frontend leftovers. No `overrides` were needed.
 
+## Part 2 result: nodemailer major upgrade
+
+`npm install nodemailer@^9.1.1` (backend). The parent `nodemailer-express-handlebars@7.0.0` is already the
+latest version and its peer range is `nodemailer >=6.0.0`, so it dedupes to 9.1.1 with no override.
+
+| Project  | After part 1 | After part 2 |
+|----------|--------------|--------------|
+| Backend  | 1 high (nodemailer 8.0.11) | **0** |
+| Frontend | 0 | **0** |
+
+Why 9.1.1 and not 10.0.10: 9.1.1 is outside every advisory range (all are `<=9.1.0`). Its only breaking change
+(9.0.0) is TLS certificate validation when nodemailer fetches remote content: URL attachments, OAuth2 token
+endpoints, and HTTP proxies. DonorLens uses none of these (SMTP user/pass + handlebars `compile` plugin only). 10.0.0
+is a full TypeScript rewrite released in September 2026 with no additional security fixes for our advisories.
+
+Frontend lockfile: the `"libc"` fields written by npm 11 in part 1 were dropped by npm 10 (metadata only, no package
+changes). The npm 10 form is committed so teammates and CI (Node 20 / npm 10) don't generate the same diff.
+
+## Final leftover table
+
+| Package | Severity | Runtime or dev-only | Decision |
+|---|---|---|---|
+| *(none)* | — | — | Both projects report `found 0 vulnerabilities` (`after-part2-*-npm-audit.txt`) |
+
 ## Regression results
 
 | Check | Before | After | File |
@@ -56,11 +80,40 @@ No frontend leftovers. No `overrides` were needed.
 | Backend module load + render all 9 email templates via nodemailer-express-handlebars | — | 9/9 OK | `after-part1-backend-smoke.txt` |
 | Backend HTTP smoke (health, 404, multer errors, auth guards, qs body) | — | all expected codes | `after-part1-backend-http-smoke.txt` |
 | Backend real-env startup: Cloudinary config, MongoDB Atlas connect (mongoose 9.10.2), SMTP verify (nodemailer 8.0.11), public campaign query | — | all OK, read-only | `after-part1-backend-real-startup.txt` |
-| Backend Playwright API suite | — | **deferred**: the suite writes users, Cloudinary uploads and emails, and the only configured DB is the shared Atlas default DB. Run it against a separate test DB | `after-part1-playwright.txt` (pending) |
+| Part 2 (nodemailer 9.1.1): render all 9 email templates | — | 9/9 OK | `after-part2-backend-smoke.txt` |
+| Part 2 (nodemailer 9.1.1): real-env startup, SMTP verify | — | OK, read-only | `after-part2-backend-real-startup.txt` |
+| Backend Playwright full suite, run against merged main (F05+F08+NF3, all packages current) | — | 30 passed, 13 failed, 5 skipped -- see below | `after-playwright-full-suite.txt` |
 
 The one failing vitest case (`DonatePage > should display validation errors when submitting Step 1 with amount < 50`,
 "Found a label with the text of: /Custom Amount/i, however no form control was found") fails identically on
 untouched `main`, so it is pre-existing and not caused by F05.
+
+## Backend Playwright full suite (previously deferred)
+
+Run after `main` had F05, F08 and NF3 all merged, against `donorlens_test` -- an isolated database created for
+this purpose (see `security-evidence/NF3/`), rather than the shared database the team's `.env` originally
+pointed at with no explicit name. `npm ci` was run first so `node_modules` exactly matched the merged
+`package-lock.json`.
+
+**30 passed, 13 failed, 5 skipped.** All 13 failures and all 5 skips are the same ones seen during NF3 testing,
+for the same reason: `donorlens_test` is a brand-new, empty database with no seeded admin account or existing
+campaigns, so every test that logs in as `admin.donorlens@gmail.com` / `buddhikadevelopment@gmail.com` or
+fetches an existing campaign fails (`campaigns.spec.js`, `execution-api.spec.js`, `payment.spec.js`, and the
+one admin-login test inside `ngo-registration.spec.js`). This is an environment/seed-data gap, not a
+regression -- none of those spec files exercise anything F05 changed (handlebars, nodemailer, multer,
+mongoose, path-to-regexp, axios, react-router-dom), and the failures are identical whether or not F05's
+changes are present.
+
+The suite exercises the actual dependency upgrades directly, and all of that passed:
+- **mongoose 9.10.2**: every campaign/user read and write across all 30 passing tests
+- **multer 2.4.0**: NGO registration and execution file uploads (`ngo-registration.spec.js`)
+- **handlebars 4.7.9 + nodemailer 9.1.1**: the registration-confirmation email sent during
+  `POSITIVE TEST 1`/`POSITIVE TEST 2` (`Email sent successfully: <...>` in the run log)
+- **path-to-regexp 8.4.2**: every route with URL params (`:campaignId`, `:executionId`, etc.)
+
+`globalTeardown` (added in NF3) ran automatically after the suite and cleaned up correctly: found and deleted
+exactly the 7 users this run created, verified 0 remaining -- confirmed independently afterward with a direct
+DB query. 0 background processes left running.
 
 ## Still to capture manually
 

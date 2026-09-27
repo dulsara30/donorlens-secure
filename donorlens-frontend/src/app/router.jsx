@@ -36,6 +36,7 @@ import SystemAdminLayout from "../features/systemAdmin/layout/SystemAdminLayout"
 import SystemAdminOverviewPage from "../features/systemAdmin/pages/SystemAdminOverviewPage";
 import SystemAdminUsersPage from "../features/systemAdmin/pages/SystemAdminUsersPage";
 import SystemAdminNgoRequestsPage from "../features/systemAdmin/pages/SystemAdminNgoRequestsPage";
+import SystemAdminPendingDonationsPage from "../features/systemAdmin/pages/SystemAdminPendingDonationsPage";
 import SystemAdminCampaignsPage from "../features/systemAdmin/pages/SystemAdminCampaignsPage";
 import ExecutionUpdatesPage from "../features/impact/pages/ExecutionUpatesPage";
 import ExecutionDashboardPage from "../features/impact/pages/ExecutionDashboardPage";
@@ -115,6 +116,10 @@ export const router = createBrowserRouter([
       {
         path: "/sys-admin/ngo-requests",
         element: <SystemAdminNgoRequestsPage />,
+      },
+      {
+        path: "/sys-admin/pending-donations",
+        element: <SystemAdminPendingDonationsPage />,
       },
       {
         path: "/sys-admin/campaigns",

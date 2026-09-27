@@ -15,17 +15,43 @@ class GoogleAccountNotAllowedError extends Error {
   }
 }
 
+class GoogleAccountDeactivatedError extends Error {
+  constructor(message) {
+    super(message);
+    this.code = "ACCOUNT_DEACTIVATED";
+  }
+}
+
+// Local (password) registration does not verify email ownership — anyone can
+// register any address. If Google sign-in auto-linked by email match alone,
+// an attacker could pre-register a victim's email locally, keep the
+// password, and inherit the account once the victim later signs in with
+// their real (Google-verified) account for that address. So we never link
+// automatically here; an email that already exists on any account (local or
+// Google, any role) is refused and pointed at password login instead.
+// Linking an already-logged-in donor's own account to Google is a possible
+// future "Connect Google" profile feature — safe because it would run while
+// already authenticated, which is the actual proof of ownership this flow
+// is missing.
+class GoogleEmailAlreadyRegisteredError extends Error {
+  constructor(message) {
+    super(message);
+    this.code = "EMAIL_ALREADY_REGISTERED";
+  }
+}
+
 /**
  * Find-or-create a DonorLens user from a verified Google ID token payload,
  * then issue this app's normal access/refresh token pair.
  *
  * Linking rules (deliberately strict — most real-world OAuth bugs are here):
- *  - existing googleId match -> log in
- *  - no googleId match, but a USER account has this verified email -> link it
- *  - the matching account is NGO_ADMIN/ADMIN -> refuse (no auto-upgrade of a
- *    higher-privilege account to a new login method)
+ *  - existing googleId match, role USER, active -> log in
+ *  - existing googleId match but role is no longer USER -> refuse (defence in
+ *    depth in case a future feature ever promotes a Google-linked donor)
+ *  - existing googleId match but deactivated -> refuse with a distinct error
+ *  - no googleId match, but ANY account already has this email -> refuse and
+ *    tell them to use their password (never auto-link, see above)
  *  - no account at all -> create a new USER (donor)
- *  - deactivated account -> refuse
  *
  * @param {Object} claims - Verified Google ID token payload (sub, email, name, email_verified)
  * @returns {Promise<{ user: Object, accessToken: string, refreshToken: string }>}
@@ -35,32 +61,33 @@ export async function googleLogin(claims) {
 
   let user = await User.findOne({ googleId: sub });
 
-  if (!user) {
-    const existing = await User.findOne({ email: email.toLowerCase() });
-
-    if (existing) {
-      if (existing.role !== "USER") {
-        throw new GoogleAccountNotAllowedError(
-          "Google sign-in is not available for this account. Please use your password.",
-        );
-      }
-      existing.googleId = sub;
-      existing.authProvider = "google";
-      user = await existing.save();
-    } else {
-      user = await User.create({
-        fullName: name || email.split("@")[0],
-        email: email.toLowerCase(),
-        googleId: sub,
-        authProvider: "google",
-        role: "USER",
-        isActive: true,
-      });
+  if (user) {
+    if (user.role !== "USER") {
+      throw new GoogleAccountNotAllowedError(
+        "Google sign-in is not available for this account. Please use your password.",
+      );
     }
-  }
+    if (!user.isActive) {
+      throw new GoogleAccountDeactivatedError(
+        "This account has been deactivated. Please contact support.",
+      );
+    }
+  } else {
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      throw new GoogleEmailAlreadyRegisteredError(
+        "An account with this email already exists. Please sign in with your password.",
+      );
+    }
 
-  if (!user.isActive) {
-    throw new GoogleAccountNotAllowedError("Account is deactivated. Please contact support.");
+    user = await User.create({
+      fullName: name || email.split("@")[0],
+      email: email.toLowerCase(),
+      googleId: sub,
+      authProvider: "google",
+      role: "USER",
+      isActive: true,
+    });
   }
 
   user.lastLoginAt = new Date();
@@ -78,4 +105,8 @@ export async function googleLogin(claims) {
   return { user: user.toSafeObject(), accessToken, refreshToken };
 }
 
-export { GoogleAccountNotAllowedError };
+export {
+  GoogleAccountNotAllowedError,
+  GoogleAccountDeactivatedError,
+  GoogleEmailAlreadyRegisteredError,
+};

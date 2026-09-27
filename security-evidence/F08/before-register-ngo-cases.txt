@@ -1,0 +1,18 @@
+# F08 register-ngo test matrix -- BEFORE fix (pre-F08 code, file.mimetype trusted as-is)
+# run marker: 1790359745  |  server PID confirmed via netstat: 29448
+
+## Case 1: plain text renamed .pdf, declared application/pdf
+{"success":false,"error":"Cloud storage error","message":"Failed to upload files to cloud storage","details":"Cloudinary upload failed: Invalid image file"}
+HTTP 500
+created: f08bcase1_1790359745@example.com
+
+## Case 3: JPG renamed to .pdf, declared application/pdf (content/extension mismatch)
+{"success":true,"message":"NGO registration submitted successfully. Waiting for admin approval.","data":{"user":{"id":"6ab6b8c5e395e23e77ea26ac","fullName":"F08 Case3","email":"f08bcase3_1790359745@example.com","role":"NGO_ADMIN","isActive":false,"ngoDetails":{"ngoName":"F08 Case3","registrationNumber":"F08BC31790359745","primaryPhone":"1234567890","address":"1 Test Street Test City","description":"F08 upload validation test case three","documents":{"registrationCertificate":{"url":"https://res.cloudinary.com/dn5vyodk9/image/upload/v1790359749/donorlens/ngo-registrations/certificates/1790359747840-errz0z1r8sf-renamed.pdf.pdf","publicId":"donorlens/ngo-registrations/certificates/1790359747840-errz0z1r8sf-renamed.pdf","format":"pdf","size":5580,"uploadedAt":"2026-09-25T18:09:09.085Z"},"additionalDocuments":[]},"status":"PENDING","reviewNotes":[],"submissionHistory":[{"submittedAt":"2026-09-25T18:09:09.066Z","status":"PENDING","documents":{"registrationCertificate":{"url":"https://res.cloudinary.com/dn5vyodk9/image/upload/v1790359749/donorlens/ngo-registrations/certificates/1790359747840-errz0z1r8sf-renamed.pdf.pdf","publicId":"donorlens/ngo-registrations/certificates/1790359747840-errz0z1r8sf-renamed.pdf","format":"pdf","size":5580},"additionalDocuments":[]},"_id":"6ab6b8c5e395e23e77ea26ad"}],"passwordSetupToken":null,"passwordSetupTokenExpiry":null,"passwordSetupTokenUsed":false,"resubmissionToken":null,"resubmissionTokenExpiry":null,"resubmissionTokenUsed":false},"createdAt":"2026-09-25T18:09:09.097Z"}}}
+HTTP 201
+created: f08bcase3_1790359745@example.com
+
+## Case 7: PDF declared as application/msword
+{"success":true,"message":"NGO registration submitted successfully. Waiting for admin approval.","data":{"user":{"id":"6ab6b8cae395e23e77ea26ae","fullName":"F08 Case7","email":"f08bcase7_1790359745@example.com","role":"NGO_ADMIN","isActive":false,"ngoDetails":{"ngoName":"F08 Case7","registrationNumber":"F08BC71790359745","primaryPhone":"1234567890","address":"1 Test Street Test City","description":"F08 upload validation test case seven","documents":{"registrationCertificate":{"url":"https://res.cloudinary.com/dn5vyodk9/image/upload/v1790359755/donorlens/ngo-registrations/certificates/1790359753362-4gm8t4q6h2x-real.pdf.pdf","publicId":"donorlens/ngo-registrations/certificates/1790359753362-4gm8t4q6h2x-real.pdf","format":"pdf","size":711,"uploadedAt":"2026-09-25T18:09:14.407Z"},"additionalDocuments":[]},"status":"PENDING","reviewNotes":[],"submissionHistory":[{"submittedAt":"2026-09-25T18:09:14.404Z","status":"PENDING","documents":{"registrationCertificate":{"url":"https://res.cloudinary.com/dn5vyodk9/image/upload/v1790359755/donorlens/ngo-registrations/certificates/1790359753362-4gm8t4q6h2x-real.pdf.pdf","publicId":"donorlens/ngo-registrations/certificates/1790359753362-4gm8t4q6h2x-real.pdf","format":"pdf","size":711},"additionalDocuments":[]},"_id":"6ab6b8cae395e23e77ea26af"}],"passwordSetupToken":null,"passwordSetupTokenExpiry":null,"passwordSetupTokenUsed":false,"resubmissionToken":null,"resubmissionTokenExpiry":null,"resubmissionTokenUsed":false},"createdAt":"2026-09-25T18:09:14.411Z"}}}
+HTTP 201
+created: f08bcase7_1790359745@example.com
+

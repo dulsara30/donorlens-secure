@@ -10,7 +10,10 @@
 //   - nonce:        random value that must reappear inside the ID token (replay protection)
 //   - full ID-token validation: signature, iss, aud, exp (via google-auth-library)
 //   - email_verified required before linking/creating an account
-//   - users are identified by Google's `sub`, never by email alone
+//   - users are identified by Google's `sub`, never by email alone, and an
+//     email that already exists locally is refused rather than auto-linked
+//     (see GoogleLoginUsecase.js — local registration has no email
+//     verification, so email-match linking alone would allow account takeover)
 //   - client secret stays in the backend .env — never sent to the frontend
 //   - no tokens are ever placed in a URL; the browser only gets our own HttpOnly
 //     refresh cookie, exactly like password login
@@ -21,13 +24,19 @@ import { OAuth2Client, CodeChallengeMethod } from "google-auth-library";
 import {
   googleLogin,
   GoogleAccountNotAllowedError,
+  GoogleAccountDeactivatedError,
+  GoogleEmailAlreadyRegisteredError,
 } from "../../usecases/auth/GoogleLoginUsecase.js";
 import { getRefreshTokenCookieOptions } from "../../utils/cookie.util.js";
 
 const router = express.Router();
 
-// Built lazily so env vars are read at request time, not at import time
-// (dotenv.config() runs after route modules are imported).
+// Built lazily (on first request) rather than at module-import time. In this
+// app's current app.js the env vars happen to already be loaded by then
+// (db.js, imported earlier, calls dotenv.config() as a side effect), but
+// relying on that import ordering is fragile — a reordered import would
+// silently construct this client with undefined credentials. Lazy
+// construction removes the dependency on import order entirely.
 let client;
 const getClient = () => {
   if (!client) {
@@ -121,6 +130,12 @@ router.get("/callback", async (req, res) => {
     return res.redirect(`${process.env.CLIENT_URL}/auth/google/success`);
   } catch (error) {
     console.error("Google login failed:", error.message);
+    if (error instanceof GoogleAccountDeactivatedError) {
+      return fail("account_deactivated");
+    }
+    if (error instanceof GoogleEmailAlreadyRegisteredError) {
+      return fail("email_already_registered");
+    }
     if (error instanceof GoogleAccountNotAllowedError) {
       return fail("account_not_allowed");
     }

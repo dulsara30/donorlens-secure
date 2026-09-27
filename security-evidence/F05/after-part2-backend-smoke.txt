@@ -1,0 +1,22 @@
+express                          5.2.1
+multer                           2.4.0
+mongoose                         9.10.2
+nodemailer                       9.1.1
+nodemailer-express-handlebars    7.0.0
+express-handlebars               8.0.6
+handlebars                       4.7.9
+cloudinary                       2.9.0
+path-to-regexp                   8.4.2
+qs                               6.16.0
+body-parser                      2.3.0
+lodash                           4.18.1
+render campaign-created             OK 6770 chars
+render donation-received            OK 6683 chars
+render ngo-password-setup           OK 9661 chars
+render ngo-registration-approved    OK 9205 chars
+render ngo-registration-deleted     OK 6764 chars
+render ngo-registration-received    OK 6728 chars
+render ngo-registration-rejected    OK 6687 chars
+render ngo-registration-resubmit    OK 7466 chars
+render password-setup-success       OK 14310 chars
+templates rendered: 9
