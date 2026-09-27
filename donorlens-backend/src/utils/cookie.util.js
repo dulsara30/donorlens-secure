@@ -15,7 +15,13 @@ export const getRefreshTokenCookieOptions = () => {
   return {
     httpOnly: true, // Prevents client-side JavaScript access (XSS protection)
     secure: isProduction, // HTTPS only in production
-    sameSite: isProduction ? "strict" : "lax", // CSRF protection
+    // The deployed frontend (Vercel) and backend (Railway) are on different
+    // domains — a genuinely cross-site setup. SameSite=Strict (or Lax) would
+    // stop the browser attaching this cookie to the frontend's cross-origin
+    // /auth/me and /auth/refresh calls, and to the Google OAuth callback
+    // redirect, so every login would look unauthenticated in production.
+    // SameSite=None requires Secure, which is already true in production.
+    sameSite: isProduction ? "none" : "lax",
     maxAge, // Cookie expiry time
     path: "/", // Cookie available across entire domain
   };
@@ -26,10 +32,12 @@ export const getRefreshTokenCookieOptions = () => {
  * @returns {Object} Cookie options to clear the token
  */
 export const clearRefreshTokenCookie = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax", // must match getRefreshTokenCookieOptions above
     maxAge: 0, // Expire immediately
     path: "/",
   };

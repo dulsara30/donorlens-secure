@@ -3,12 +3,14 @@ import { adminRegisterController } from "../../controllers/ngoadmin/NgoAdminRegi
 import { uploadFields } from "../../middleware/upload.middleware.js";
 import { validateFiles } from "../../middleware/fileValidation.middleware.js";
 import { ALLOWED_FILE_TYPES } from "../../utils/fileHelpers.js";
+import { registerLimiter } from "../../middleware/rateLimit.middleware.js";
 import ResubmissionNgoRequestController from "../../controllers/auth/ResubmissionNgoRequestController.js";
 
 const ngoAdminRouter = Router();
 
 ngoAdminRouter.post(
   "/register-ngo",
+  registerLimiter,
   uploadFields([
     { name: "registrationCertificate", maxCount: 1 }, // Required, 1 file
     { name: "additionalDoc1", maxCount: 1 }, // Optional

@@ -8,6 +8,11 @@ import { refreshTokenController } from "../../controllers/auth/RefreshTokenContr
 import { getCurrentUserController } from "../../controllers/auth/GetCurrentUserController.js";
 import { logoutController } from "../../controllers/auth/LogoutController.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
+import {
+  loginLimiter,
+  sensitiveAuthLimiter,
+  registerLimiter,
+} from "../../middleware/rateLimit.middleware.js";
 import PasswordSetupTokenVerificationController from "../../controllers/admin/PasswordSetupTokenVerificationController.js";
 import VerifyIdentityController from "../../controllers/admin/VerifyIdentityController.js";
 import SetPasswordController from "../../controllers/admin/SetPasswordController.js";
@@ -15,9 +20,9 @@ import ResubmissionTokenVerificationController from "../../controllers/auth/Resu
 
 const authRouter = Router();
 
-authRouter.post("/register/user", registerUserController);
+authRouter.post("/register/user", registerLimiter, registerUserController);
 
-authRouter.post("/login", loginController);
+authRouter.post("/login", loginLimiter, loginController);
 
 authRouter.post("/refresh", refreshTokenController);
 
@@ -35,8 +40,8 @@ authRouter.get(
   ResubmissionTokenVerificationController,
 );
 
-authRouter.post("/verify-identity", VerifyIdentityController);
+authRouter.post("/verify-identity", sensitiveAuthLimiter, VerifyIdentityController);
 
-authRouter.post("/set-password", SetPasswordController);
+authRouter.post("/set-password", sensitiveAuthLimiter, SetPasswordController);
 
 export default authRouter;
