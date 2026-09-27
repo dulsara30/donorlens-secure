@@ -69,9 +69,9 @@ test.describe("Payment API Endpoints", () => {
     });
 
     // ---------------------------------------------------------
-    // 4. Create Payment 
+    // 4. Payment review workflow
     // ---------------------------------------------------------
-    test("Create Payment: POST /api/payment/ successfully with valid mock data", async ({ request }) => {
+    test("Client cannot create a payment through POST /api/payment", async ({ request }) => {
         const res = await request.post("api/payment/", {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -79,55 +79,34 @@ test.describe("Payment API Endpoints", () => {
             data: {
                 campaignId: "69ac148f96c25e1fdad7a3ee",
                 amount: 200,
-                paymentMethod: "CARD"
+                status: "COMPLETED"
             }
         });
-
-        // Since we are using an invalid/hardcoded campaign ID in testing, 
-        // a 400 response is also completely valid because of Campaign Validation Errors. 
-        // But 201 is expected if the campaign actually exists!
-        expect([201, 400, 404]).toContain(res.status());
+        expect(res.status()).toBe(404);
     });
 
-    test("Create Payment: POST /api/payment/ should fail with negative amount (400)", async ({ request }) => {
-        const res = await request.post("api/payment/", {
+    test("Pending payments require an admin token", async ({ request }) => {
+        const res = await request.get("api/payment/pending", {
             headers: {
                 Authorization: `Bearer ${token}`
-            },
-            data: {
-                campaignId: "69ac148f96c25e1fdad7a3ee",
-                amount: -200,
-                currency: "LKR",
-                paymentMethod: "CARD"
             }
         });
-        expect(res.status()).toBe(400);
+        expect(res.status()).toBe(403);
     });
 
-    test("Create Payment: POST /api/payment/ should fail with zero amount (400)", async ({ request }) => {
-        const res = await request.post("api/payment/", {
+    test("Payment confirmation rejects malformed IDs", async ({ request }) => {
+        const res = await request.patch("api/payment/not-an-id/confirm", {
             headers: {
-                Authorization: `Bearer ${token}`
-            },
-            data: {
-                campaignId: "69ac148f96c25e1fdad7a3ee",
-                amount: 0,
-                currency: "LKR",
-                paymentMethod: "CARD"
+                Authorization: `Bearer ${adminToken}`
             }
         });
         expect(res.status()).toBe(400);
     });
 
-    test("Create Payment: POST /api/payment/ should fail without campaign ID (400)", async ({ request }) => {
-        const res = await request.post("api/payment/", {
+    test("Payment rejection rejects malformed IDs", async ({ request }) => {
+        const res = await request.patch("api/payment/not-an-id/reject", {
             headers: {
-                Authorization: `Bearer ${token}`
-            },
-            data: {
-                amount: 200,
-                currency: "LKR",
-                paymentMethod: "CARD"
+                Authorization: `Bearer ${adminToken}`
             }
         });
         expect(res.status()).toBe(400);

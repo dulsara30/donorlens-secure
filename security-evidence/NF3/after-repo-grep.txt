@@ -1,0 +1,11 @@
+../../donorlens-secure/donorlens-backend/playwright.config.js:19:   * finishes, now that the unauthenticated /api/test/cleanup/* routes it
+../../donorlens-secure/donorlens-backend/scripts/cleanupTestData.js:4: * Moved here from the deleted, unauthenticated /api/test/cleanup/* routes
+../../donorlens-secure/donorlens-backend/tests/global-teardown.js:4: * /api/test/cleanup/* routes.
+../../donorlens-secure/donorlens-backend/tests/ngo-registration.spec.js:42:    // NF3: the unauthenticated /api/test/cleanup/* routes this used to call
+../../donorlens-secure/security-evidence/NF3/README.md:8:[src/routes/test/test.route.js](../../donorlens-backend/src/routes/test/test.route.js) exposed two
+../../donorlens-secure/security-evidence/NF3/README.md:9:**unauthenticated** routes -- `DELETE /api/test/cleanup/user/:email` and `DELETE /api/test/cleanup/all` --
+../../donorlens-secure/security-evidence/NF3/README.md:21:- `tests/ngo-registration.spec.js`'s `afterAll` called `DELETE /api/test/cleanup/user/:email` for each NGO it
+../../donorlens-secure/security-evidence/NF3/README.md:24:  `test/cleanup`, `test.route`, `TestCleanupController`, `testRoutes` found no other reference, before or
+../../donorlens-secure/security-evidence/NF3/README.md:38:1. Deleted `src/routes/test/test.route.js` and `src/controllers/test/TestCleanupController.js`; removed the
+../../donorlens-secure/security-evidence/NF3/README.md:73:DELETE /api/test/cleanup/all              -> 404 Not Found
+../../donorlens-secure/security-evidence/NF3/README.md:74:DELETE /api/test/cleanup/user/nobody@...  -> 404 Not Found

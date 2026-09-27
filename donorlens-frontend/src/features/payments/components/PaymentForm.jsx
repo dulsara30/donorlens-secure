@@ -1,58 +1,7 @@
-import { useRef, useEffect } from "react";
-import { generatePayHereHash } from "../helpers";
-
 const PAYHERE_CHECKOUT_URL = "https://sandbox.payhere.lk/pay/checkout";
 
-export default function PaymentForm({
-  orderId,
-  items,
-  amount,
-  currency = "LKR",
-  firstName,
-  lastName,
-  email,
-  phone,
-  address,
-  city,
-  autoSubmit = false,
-}) {
-  const formRef = useRef(null);
-  const merchantId = import.meta.env.VITE_PAYHERE_MERCHANT_ID;
-
-  const returnUrl = `${window.location.origin}/payment/return`;
-  const cancelUrl = `${window.location.origin}/payment/cancel`;
-  const notifyUrl = `${import.meta.env.VITE_API_URL}/payments/notify`;
-
-  const hash = generatePayHereHash(orderId, amount, currency);
-
-  useEffect(() => {
-    if (autoSubmit && formRef.current) {
-      formRef.current.submit();
-    }
-  }, [autoSubmit]);
-
-  const handleSubmit = () => {
-    if (formRef.current) {
-      formRef.current.submit();
-    }
-  };
-
-  return {
-    formRef,
-    merchantId,
-    returnUrl,
-    cancelUrl,
-    notifyUrl,
-    hash,
-    handleSubmit,
-  };
-}
-
 export function PayHereHiddenForm({
-  orderId,
-  items,
-  amount,
-  currency = "LKR",
+  checkout,
   firstName,
   lastName,
   email,
@@ -61,11 +10,7 @@ export function PayHereHiddenForm({
   city,
   formRef,
 }) {
-  const merchantId = import.meta.env.VITE_PAYHERE_MERCHANT_ID;
-  const returnUrl = `${window.location.origin}/payment/return`;
-  const cancelUrl = `${window.location.origin}/payment/cancel`;
-  const notifyUrl = `${import.meta.env.VITE_API_URL}/payments/notify`;
-  const hash = generatePayHereHash(orderId, amount, currency);
+  if (!checkout) return null;
 
   return (
     <form
@@ -74,18 +19,14 @@ export function PayHereHiddenForm({
       action={PAYHERE_CHECKOUT_URL}
       style={{ display: "none" }}
     >
-      <input type="hidden" name="merchant_id" value={merchantId} />
-      <input type="hidden" name="return_url" value={returnUrl} />
-      <input type="hidden" name="cancel_url" value={cancelUrl} />
-      <input type="hidden" name="notify_url" value={notifyUrl} />
-      <input type="hidden" name="order_id" value={orderId} />
-      <input type="hidden" name="items" value={items} />
-      <input type="hidden" name="currency" value={currency} />
-      <input
-        type="hidden"
-        name="amount"
-        value={parseFloat(amount).toFixed(2)}
-      />
+      <input type="hidden" name="merchant_id" value={checkout.merchant_id} />
+      <input type="hidden" name="return_url" value={checkout.return_url} />
+      <input type="hidden" name="cancel_url" value={checkout.cancel_url} />
+      <input type="hidden" name="notify_url" value={checkout.notify_url} />
+      <input type="hidden" name="order_id" value={checkout.order_id} />
+      <input type="hidden" name="items" value={checkout.items} />
+      <input type="hidden" name="currency" value={checkout.currency} />
+      <input type="hidden" name="amount" value={checkout.amount} />
       <input type="hidden" name="first_name" value={firstName} />
       <input type="hidden" name="last_name" value={lastName} />
       <input type="hidden" name="email" value={email} />
@@ -93,7 +34,7 @@ export function PayHereHiddenForm({
       <input type="hidden" name="address" value={address} />
       <input type="hidden" name="city" value={city} />
       <input type="hidden" name="country" value="Sri Lanka" />
-      <input type="hidden" name="hash" value={hash} />
+      <input type="hidden" name="hash" value={checkout.hash} />
     </form>
   );
 }

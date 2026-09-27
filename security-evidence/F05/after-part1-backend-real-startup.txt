@@ -1,0 +1,7 @@
+# Real-environment startup check after F05 part 1 (read-only: no writes, no emails sent)
+Cloudinary configuration verified successfully.
+Server is running on port 5056
+MongoDB Connected Successfully!
+Email server is ready to send messages
+GET /health -> {"success":true,"message":"DonorLens API is running","timestamp":"2026-09-24T20:08:30.484Z"} [200]
+GET /api/ngo/campaigns/get-all-campaigns (public read, mongoose query) -> [200]

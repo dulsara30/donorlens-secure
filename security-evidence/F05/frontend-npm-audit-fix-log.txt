@@ -1,0 +1,15 @@
+# npm 10.9.2 'npm audit fix' crashed: Cannot read properties of null (reading 'edgesOut')
+# cause: @tailwindcss/oxide-wasm32-wasi bundleDependencies not in lock on Windows (npm arborist bug)
+# fallback: npx npm@11 audit fix   (still no --force)
+
+
+3 moderate severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+# vitest group is lock-stepped by exact peer (coverage-v8 4.1.4 -> vitest 4.1.4); audit fix cannot move it alone.
+npx npm@11 install -D vitest@^4.1.11 @vitest/coverage-v8@^4.1.11
+  run `npm fund` for details
+
+found 0 vulnerabilities

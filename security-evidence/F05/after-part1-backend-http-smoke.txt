@@ -1,0 +1,17 @@
+# Backend HTTP smoke test after F05 part 1 (dummy env, no DB; non-DB routes only)
+## GET /health
+{"success":true,"message":"DonorLens API is running","timestamp":"2026-09-24T20:05:35.563Z"}  [200]
+## GET unknown route -> 404 handler
+{"success":false,"error":"Not found","message":"Route /api/does-not-exist not found","resource":"Route /api/does-not-exist"}  [404]
+## POST register-ngo multipart, no files (multer 2.4 + validateFiles)
+{"success":false,"error":"File validation error","message":"At least 1 file(s) required"}  [400]
+## POST register-ngo, unexpected file field (MulterError path)
+{"success":false,"error":"File upload error","message":"Unexpected file field","code":"LIMIT_UNEXPECTED_FILE"}  [400]
+## POST register-ngo, disallowed mimetype (fileFilter path)
+{"success":false,"error":"File upload error","message":"File type text/html is not allowed. Allowed types: images (jpg, png, webp) and documents (pdf, doc, docx)"}  [400]
+## GET /api/auth/me without token
+{"success":false,"message":"Access token required"}  [401]
+## PATCH execution route params without token
+{"success":false,"message":"Access token required"}  [401]
+## POST urlencoded nested body (qs 6.16)
+{"success":false,"message":"Refresh token required"}  [401]

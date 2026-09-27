@@ -1,0 +1,47 @@
+
+Running 7 tests using 4 workers
+
+Setting up test fixtures...
+Test fixtures ready!
+Setting up test fixtures...
+Test fixtures ready!
+Setting up test fixtures...
+Test fixtures ready!
+Test passed: Registration failed without certificate (as expected)
+Setting up test fixtures...
+Test fixtures ready!
+  ok 3 [chromium] › tests\ngo-registration.spec.js:165:3 › NGO Registration API Tests › NEGATIVE TEST 1: Should fail when no certificate file is uploaded (51ms)
+Mock email API intercepted by Playwright
+Mocking test passed successfully
+Starting test cleanup...
+Cleaning up 0 NGO registrations from database...
+ Test cleanup completed!
+Total tests executed: 0 NGO registrations
+  ok 2 [chromium] › tests\ngo-registration.spec.js:343:3 › NGO Registration API Tests › MOCKING: Mock password setup email service using a fake endpoint (609ms)
+Edge case passed: NGO registered without optional fields
+  ok 1 [chromium] › tests\ngo-registration.spec.js:243:3 › NGO Registration API Tests › EDGE CASE: Register without optional fields (secondaryPhone, website) (6.2s)
+Test passed: Duplicate email rejected (as expected)
+Starting test cleanup...
+Cleaning up 1 NGO registrations from database...
+ Deleted test user: duplicate1790360077563@example.com
+ Test cleanup completed!
+Total tests executed: 1 NGO registrations
+  ok 5 [chromium] › tests\ngo-registration.spec.js:190:3 › NGO Registration API Tests › NEGATIVE TEST 2: Should fail with duplicate email address (6.6s)
+Starting test cleanup...
+Cleaning up 1 NGO registrations from database...
+ Deleted test user: edgecase1790360077459@example.com
+ Test cleanup completed!
+Total tests executed: 1 NGO registrations
+NGO registered successfully: testngo1790360077582@example.com
+  ok 6 [chromium] › tests\ngo-registration.spec.js:276:3 › NGO Registration API Tests › GET /auth/Login - admin login (524ms)
+  ok 4 [chromium] › tests\ngo-registration.spec.js:69:3 › NGO Registration API Tests › POSITIVE TEST 1: Register NGO with minimum required fields and certificate (6.7s)
+Complete NGO registered with all documents: completengo1790360084270@example.com
+Starting test cleanup...
+Cleaning up 2 NGO registrations from database...
+ Deleted test user: testngo1790360077582@example.com
+ Deleted test user: completengo1790360084270@example.com
+ Test cleanup completed!
+Total tests executed: 2 NGO registrations
+  ok 7 [chromium] › tests\ngo-registration.spec.js:105:3 › NGO Registration API Tests › POSITIVE TEST 2: Register NGO with all optional fields and multiple documents (9.5s)
+
+  7 passed (19.0s)

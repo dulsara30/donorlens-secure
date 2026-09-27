@@ -1,0 +1,5 @@
+donorlens-backend@1.0.0 D:\4 yr\SSD\Assignment1\donorlens-secure\donorlens-backend
++-- nodemailer-express-handlebars@7.0.0
+| `-- nodemailer@9.1.1 deduped
+`-- nodemailer@9.1.1
+

@@ -1,0 +1,35 @@
+
+> donorlens@0.0.0 build
+> vite build
+
+[2m1:31:32 AM[22m [33m[1m[vite][22m[39m [33mwarning: `esbuild` option was specified by "vite:react-swc" plugin. This option is deprecated, please use `oxc` instead.[39m
+[36mvite v8.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 2015 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                 0.52 kB │ gzip:   0.31 kB
+dist/assets/logo-V72yWceq.png                 330.85 kB
+dist/assets/background-CTkkpYFi.png         1,456.86 kB
+dist/assets/index-O5FnDPSV.css                121.58 kB │ gzip:  23.42 kB
+dist/assets/StepIndicator-IdgaPW2s.js           3.00 kB │ gzip:   0.87 kB
+dist/assets/StepOneIntent-C7q_1oH8.js           7.99 kB │ gzip:   2.19 kB
+dist/assets/StepTwoBasicInfo-CdGfZCXd.js       10.96 kB │ gzip:   1.81 kB
+dist/assets/StepFourPreview-Buwq754P.js        11.78 kB │ gzip:   2.41 kB
+dist/assets/StepThreeDocuments-CMn51_CL.js     12.85 kB │ gzip:   2.92 kB
+dist/assets/index-46FxhKHa.js                 988.76 kB │ gzip: 269.01 kB
+
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 15.65s[39m
+[33m[33m[PLUGIN_TIMINGS] [0mJavaScript callbacks ran for 2.1s of this 15.6s build (13%).
+The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+  - plugin vite:css transform (10%, 1.6s, 3 calls)
+Additional callback time came from the callbacks below and from callbacks under 1s.
+1 callback is listed without a time. Its calls overlapped, so the time inside one call includes work from other calls. To find its cost, profile the build with `node --cpu-prof`:
+  - plugin vite:asset load (2 calls)
+See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+[39m

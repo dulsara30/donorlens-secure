@@ -1,0 +1,8 @@
+fix available via `npm audit fix --force`
+Will install nodemailer@10.0.10, which is a breaking change
+node_modules/nodemailer
+
+1 high severity vulnerability
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
