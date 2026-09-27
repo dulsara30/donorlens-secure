@@ -5,12 +5,15 @@
 //   2. GET  /api/auth/google/callback  -> Google redirects back here with ?code&state
 //
 // Security controls implemented here (see docs/SECURITY_ANALYSIS.md section 14):
-//   - state:        random value, stored server-side, checked on callback (login CSRF)
+//   - state:        random value, stored in a signed cookie, checked on callback (login CSRF)
 //   - PKCE (S256):  code_verifier/code_challenge so a stolen code can't be redeemed alone
 //   - nonce:        random value that must reappear inside the ID token (replay protection)
 //   - full ID-token validation: signature, iss, aud, exp (via google-auth-library)
 //   - email_verified required before linking/creating an account
-//   - users are identified by Google's `sub`, never by email alone
+//   - users are identified by Google's `sub`, never by email alone, and an
+//     email that already exists locally is refused rather than auto-linked
+//     (see GoogleLoginUsecase.js — local registration has no email
+//     verification, so email-match linking alone would allow account takeover)
 //   - client secret stays in the backend .env — never sent to the frontend
 //   - no tokens are ever placed in a URL; the browser only gets our own HttpOnly
 //     refresh cookie, exactly like password login
@@ -21,42 +24,59 @@ import { OAuth2Client, CodeChallengeMethod } from "google-auth-library";
 import {
   googleLogin,
   GoogleAccountNotAllowedError,
+  GoogleAccountDeactivatedError,
+  GoogleEmailAlreadyRegisteredError,
 } from "../../usecases/auth/GoogleLoginUsecase.js";
 import { getRefreshTokenCookieOptions } from "../../utils/cookie.util.js";
 
 const router = express.Router();
 
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI,
-);
+// Built lazily (on first request) rather than at module-import time. In this
+// app's current app.js the env vars happen to already be loaded by then
+// (db.js, imported earlier, calls dotenv.config() as a side effect), but
+// relying on that import ordering is fragile — a reordered import would
+// silently construct this client with undefined credentials. Lazy
+// construction removes the dependency on import order entirely.
+let client;
+const getClient = () => {
+  if (!client) {
+    client = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI,
+    );
+  }
+  return client;
+};
 
 const OAUTH_COOKIE = "g_oauth";
+const OAUTH_COOKIE_PATH = "/api/auth/google";
 
-const oauthCookieOptions = {
+const getOauthCookieOptions = () => ({
   httpOnly: true,
   signed: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax", // must be "lax": Google's redirect back is a cross-site top-level GET
   maxAge: 10 * 60 * 1000, // 10 minutes — the whole round trip through Google should be fast
-  path: "/api/auth/google",
-};
+  path: OAUTH_COOKIE_PATH,
+});
 
 // 1) Start: send the donor to Google
 router.get("/", async (req, res, next) => {
   try {
-    const { codeVerifier, codeChallenge } = await client.generateCodeVerifierAsync();
+    const oauthClient = getClient();
+    const { codeVerifier, codeChallenge } =
+      await oauthClient.generateCodeVerifierAsync();
     const state = crypto.randomBytes(32).toString("hex");
     const nonce = crypto.randomBytes(32).toString("hex");
 
     res.cookie(
       OAUTH_COOKIE,
       JSON.stringify({ state, nonce, codeVerifier }),
-      oauthCookieOptions,
+      getOauthCookieOptions(),
     );
 
-    const url = client.generateAuthUrl({
+    const url = oauthClient.generateAuthUrl({
       scope: ["openid", "email", "profile"],
       state,
       nonce,
@@ -74,27 +94,28 @@ router.get("/", async (req, res, next) => {
 // 2) Callback: Google sends the donor back here
 router.get("/callback", async (req, res) => {
   const fail = (reason) => {
-    res.clearCookie(OAUTH_COOKIE, { path: oauthCookieOptions.path });
+    res.clearCookie(OAUTH_COOKIE, { path: OAUTH_COOKIE_PATH });
     return res.redirect(`${process.env.CLIENT_URL}/login?error=${reason}`);
   };
 
   try {
+    const oauthClient = getClient();
     const saved = req.signedCookies?.[OAUTH_COOKIE]
       ? JSON.parse(req.signedCookies[OAUTH_COOKIE])
       : null;
-    res.clearCookie(OAUTH_COOKIE, { path: oauthCookieOptions.path }); // one-time use
+    res.clearCookie(OAUTH_COOKIE, { path: OAUTH_COOKIE_PATH }); // one-time use
 
     if (req.query.error) return fail("google_cancelled");
     if (!saved || !req.query.state || req.query.state !== saved.state) {
       return fail("invalid_state");
     }
 
-    const { tokens } = await client.getToken({
+    const { tokens } = await oauthClient.getToken({
       code: req.query.code,
       codeVerifier: saved.codeVerifier,
     });
 
-    const ticket = await client.verifyIdToken({
+    const ticket = await oauthClient.verifyIdToken({
       idToken: tokens.id_token,
       audience: process.env.GOOGLE_CLIENT_ID, // checks signature, iss, aud, exp
     });
@@ -109,6 +130,12 @@ router.get("/callback", async (req, res) => {
     return res.redirect(`${process.env.CLIENT_URL}/auth/google/success`);
   } catch (error) {
     console.error("Google login failed:", error.message);
+    if (error instanceof GoogleAccountDeactivatedError) {
+      return fail("account_deactivated");
+    }
+    if (error instanceof GoogleEmailAlreadyRegisteredError) {
+      return fail("email_already_registered");
+    }
     if (error instanceof GoogleAccountNotAllowedError) {
       return fail("account_not_allowed");
     }
